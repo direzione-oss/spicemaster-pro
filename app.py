@@ -77,10 +77,11 @@ with col_user:
         logout()
 
 # ── NAVIGAZIONE A TAB ────────────────────────────────────────
-tab_home, tab_disp, tab_cat, tab_gin, tab_hist = st.tabs([
+tab_home, tab_disp, tab_cat, tab_lab, tab_gin, tab_hist = st.tabs([
     "🏠 Home",
     "🏺 Dispensa",
     "📚 Catalogo",
+    "⚗️ Lab",
     "🍸 Gin Bar",
     "📖 Storico",
 ])
@@ -93,6 +94,9 @@ with tab_disp:
 
 with tab_cat:
     from pages import catalogo; catalogo.show()
+
+with tab_lab:
+    from pages import lab; lab.show()
 
 with tab_gin:
     from pages import gin_bar; gin_bar.show()
