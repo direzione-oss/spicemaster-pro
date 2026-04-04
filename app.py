@@ -1,6 +1,6 @@
 """
 SpiceMaster Pro — App Principale
-Login + navigazione a tab (no sidebar)
+Login + navigazione a pagina singola (no tabs, no sidebar)
 """
 import streamlit as st
 from utils.auth import check_auth, login_page, logout
@@ -16,39 +16,38 @@ st.set_page_config(
 # ── CSS Globale ────────────────────────────────────────────────
 st.markdown("""
 <style>
-/* Nascondi sidebar, header e footer default */
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stSidebar"],
 [data-testid="collapsedControl"] { display: none !important; }
-/* Bottoni */
 .stButton > button {
     background: linear-gradient(135deg, #C9900C, #F4A900);
     color: #000; font-weight: 700; border: none; border-radius: 8px;
 }
 .stButton > button:hover { opacity:.85; transform:translateY(-1px); }
-/* Input */
 .stTextInput input, .stTextArea textarea, .stSelectbox select {
     background:#1A1A1A !important; border:1px solid #C9900C44 !important;
     color:#E8DCC8 !important; border-radius:8px !important;
 }
-/* Tab styling */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 0;
-    background: #111;
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid #C9900C33;
+/* Navigation pills */
+div[data-testid="stHorizontalBlock"] .stRadio > div {
+    flex-direction: row !important;
+    gap: 0 !important;
 }
-.stTabs [data-baseweb="tab"] {
-    border-radius: 8px;
-    color: #888;
-    font-weight: 600;
-    padding: 8px 16px;
+div[data-testid="stHorizontalBlock"] .stRadio > div > label {
+    background: #1A1A1A !important;
+    border: 1px solid #C9900C33 !important;
+    border-radius: 8px !important;
+    padding: 0.4rem 1rem !important;
+    margin: 0 2px !important;
+    color: #888 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
 }
-.stTabs [aria-selected="true"] {
+div[data-testid="stHorizontalBlock"] .stRadio > div > label[data-checked="true"],
+div[data-testid="stHorizontalBlock"] .stRadio > div [data-baseweb="radio"] input:checked + div {
     background: linear-gradient(135deg, #C9900C, #F4A900) !important;
     color: #000 !important;
-    border-radius: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -58,48 +57,40 @@ if not check_auth():
     login_page()
     st.stop()
 
-# ── HEADER ───────────────────────────────────────────────────
+# ── HEADER + NAV ─────────────────────────────────────────────
 nome = st.session_state.get("user_nome", "Chef")
-col_logo, col_user = st.columns([6, 1])
+
+col_logo, col_nav, col_user = st.columns([2, 6, 1])
 with col_logo:
     st.markdown(f"""
-    <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;">
-      <span style="font-size:1.8rem;">🌶️</span>
-      <div>
-        <span style="font-size:1.2rem;font-weight:800;color:{GOLD};">SpiceMaster Pro</span>
-        <span style="font-size:.72rem;color:#666;margin-left:.5rem;">Laboratorio Botanico</span>
-      </div>
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.3rem 0;">
+      <span style="font-size:1.6rem;">🌶️</span>
+      <span style="font-size:1.1rem;font-weight:800;color:{GOLD};">SpiceMaster Pro</span>
     </div>
     """, unsafe_allow_html=True)
+
+with col_nav:
+    pagina = st.radio(
+        "nav", ["🏠 Home", "🏺 Dispensa", "📚 Catalogo", "⚗️ Lab", "🍸 Gin Bar", "📖 Storico"],
+        horizontal=True, label_visibility="collapsed", key="main_nav"
+    )
+
 with col_user:
-    st.markdown(f"<div style='text-align:right;padding-top:.6rem;'><span style='color:#888;font-size:.78rem;'>👋 <b style=\"color:{GOLD};\">{nome}</b></span></div>", unsafe_allow_html=True)
     if st.button("🚪 Esci", key="logout_btn"):
         logout()
 
-# ── NAVIGAZIONE A TAB ────────────────────────────────────────
-tab_home, tab_disp, tab_cat, tab_lab, tab_gin, tab_hist = st.tabs([
-    "🏠 Home",
-    "🏺 Dispensa",
-    "📚 Catalogo",
-    "⚗️ Lab",
-    "🍸 Gin Bar",
-    "📖 Storico",
-])
+st.markdown("<hr style='border-color:#C9900C22;margin:.5rem 0 1rem;'>", unsafe_allow_html=True)
 
-with tab_home:
+# ── ROUTING (una sola pagina alla volta) ─────────────────────
+if pagina == "🏠 Home":
     from pages import home; home.show()
-
-with tab_disp:
+elif pagina == "🏺 Dispensa":
     from pages import dispensa; dispensa.show()
-
-with tab_cat:
+elif pagina == "📚 Catalogo":
     from pages import catalogo; catalogo.show()
-
-with tab_lab:
+elif pagina == "⚗️ Lab":
     from pages import lab; lab.show()
-
-with tab_gin:
+elif pagina == "🍸 Gin Bar":
     from pages import gin_bar; gin_bar.show()
-
-with tab_hist:
+elif pagina == "📖 Storico":
     from pages import history; history.show()
