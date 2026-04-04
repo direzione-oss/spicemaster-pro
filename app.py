@@ -3,7 +3,7 @@ SpiceMaster Pro — App Principale
 Login + navigazione a pagina singola (no tabs, no sidebar)
 """
 import streamlit as st
-from utils.auth import check_auth, login_page, logout
+from utils.auth import check_auth, login_page, logout, is_admin
 from utils.ui import GOLD
 
 st.set_page_config(
@@ -28,27 +28,6 @@ st.markdown("""
     background:#1A1A1A !important; border:1px solid #C9900C44 !important;
     color:#E8DCC8 !important; border-radius:8px !important;
 }
-/* Navigation pills */
-div[data-testid="stHorizontalBlock"] .stRadio > div {
-    flex-direction: row !important;
-    gap: 0 !important;
-}
-div[data-testid="stHorizontalBlock"] .stRadio > div > label {
-    background: #1A1A1A !important;
-    border: 1px solid #C9900C33 !important;
-    border-radius: 8px !important;
-    padding: 0.4rem 1rem !important;
-    margin: 0 2px !important;
-    color: #888 !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
-    cursor: pointer !important;
-}
-div[data-testid="stHorizontalBlock"] .stRadio > div > label[data-checked="true"],
-div[data-testid="stHorizontalBlock"] .stRadio > div [data-baseweb="radio"] input:checked + div {
-    background: linear-gradient(135deg, #C9900C, #F4A900) !important;
-    color: #000 !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -59,6 +38,12 @@ if not check_auth():
 
 # ── HEADER + NAV ─────────────────────────────────────────────
 nome = st.session_state.get("user_nome", "Chef")
+
+# Pagine disponibili in base al ruolo
+if is_admin():
+    pages = ["👥 Admin", "🏠 Home", "🏺 Dispensa", "📚 Catalogo", "⚗️ Lab", "🍸 Gin Bar", "📖 Storico"]
+else:
+    pages = ["🏠 Home", "🏺 Dispensa", "📚 Catalogo", "⚗️ Lab", "🍸 Gin Bar", "📖 Storico"]
 
 col_logo, col_nav, col_user = st.columns([2, 6, 1])
 with col_logo:
@@ -71,7 +56,7 @@ with col_logo:
 
 with col_nav:
     pagina = st.radio(
-        "nav", ["🏠 Home", "🏺 Dispensa", "📚 Catalogo", "⚗️ Lab", "🍸 Gin Bar", "📖 Storico"],
+        "nav", pages,
         horizontal=True, label_visibility="collapsed", key="main_nav"
     )
 
@@ -81,8 +66,10 @@ with col_user:
 
 st.markdown("<hr style='border-color:#C9900C22;margin:.5rem 0 1rem;'>", unsafe_allow_html=True)
 
-# ── ROUTING (una sola pagina alla volta) ─────────────────────
-if pagina == "🏠 Home":
+# ── ROUTING ──────────────────────────────────────────────────
+if pagina == "👥 Admin":
+    from pages import admin; admin.show()
+elif pagina == "🏠 Home":
     from pages import home; home.show()
 elif pagina == "🏺 Dispensa":
     from pages import dispensa; dispensa.show()
