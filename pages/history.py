@@ -38,11 +38,11 @@ def show():
         from data.catalog import SPICES_CATALOG
         spice_opts = {s["name"]: s["id"] for s in sorted(SPICES_CATALOG, key=lambda x: x["name"])}
         with st.form("history_form", clear_on_submit=True):
-            dish   = st.text_input("Nome piatto *", placeholder="es. Risotto allo Zafferano")
-            sel    = st.multiselect("Spezie usate", list(spice_opts.keys()))
-            rating = st.slider("Valutazione ⭐", 1, 5, 4)
-            notes  = st.text_area("Note", placeholder="Impressioni, variazioni…", height=80)
-            d      = st.date_input("Data", value=date.today())
+            dish   = st.text_input("Nome piatto *", placeholder="es. Risotto allo Zafferano", key="hist_dish")
+            sel    = st.multiselect("Spezie usate", list(spice_opts.keys()), key="hist_spices")
+            rating = st.slider("Valutazione ⭐", 1, 5, 4, key="hist_rating")
+            notes  = st.text_area("Note", placeholder="Impressioni, variazioni…", height=80, key="hist_notes")
+            d      = st.date_input("Data", value=date.today(), key="hist_date")
             if st.form_submit_button("✓ Registra", use_container_width=True):
                 if not dish:
                     st.error("Inserisci il nome del piatto.")

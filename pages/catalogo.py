@@ -8,16 +8,16 @@ def show():
     # ── Filtri ───────────────────────────────────────────────
     col1, col2, col3 = st.columns([3, 2, 2])
     with col1:
-        search = st.text_input("🔍 Cerca", placeholder="Pepe, Lavanda, Bergamotto…", label_visibility="collapsed")
+        search = st.text_input("🔍 Cerca", placeholder="Pepe, Lavanda, Bergamotto…", label_visibility="collapsed", key="cat_search")
     with col2:
         categories = ["Tutte"] + sorted(set(s["category"] for s in SPICES_CATALOG))
-        cat = st.selectbox("Categoria", categories, label_visibility="collapsed")
+        cat = st.selectbox("Categoria", categories, label_visibility="collapsed", key="cat_category")
     with col3:
         forms = ["Tutte"] + sorted(set(s.get("form","") for s in SPICES_CATALOG if s.get("form","")))
-        form_filter = st.selectbox("Forma", forms, label_visibility="collapsed")
+        form_filter = st.selectbox("Forma", forms, label_visibility="collapsed", key="cat_form")
 
     all_tags = sorted(set(t for s in SPICES_CATALOG for t in s.get("tags", [])))
-    tag_sel = st.multiselect("🏷️ Filtra per aroma", all_tags)
+    tag_sel = st.multiselect("🏷️ Filtra per aroma", all_tags, key="cat_tags")
 
     # Applica filtri
     filtered = SPICES_CATALOG

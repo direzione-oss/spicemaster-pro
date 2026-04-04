@@ -23,11 +23,11 @@ def show():
     # ── Filtri ───────────────────────────────────────────────
     fc, fs, ft = st.columns([2,2,1])
     with fc:
-        search = st.text_input("🔍 Cerca", placeholder="Pepe, Lavanda…", label_visibility="collapsed")
+        search = st.text_input("🔍 Cerca", placeholder="Pepe, Lavanda…", label_visibility="collapsed", key="disp_search")
     with fs:
-        cat_filter = st.selectbox("Categoria", ["Tutte"] + ALL_CATEGORIES, label_visibility="collapsed")
+        cat_filter = st.selectbox("Categoria", ["Tutte"] + ALL_CATEGORIES, label_visibility="collapsed", key="disp_category")
     with ft:
-        only_low = st.checkbox("Solo scorta bassa")
+        only_low = st.checkbox("Solo scorta bassa", key="disp_lowstock")
 
     # Filtra
     filtered = rows
@@ -101,13 +101,13 @@ def show():
         with st.form("add_spice_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
             with col1:
-                sel_name = st.selectbox("Spezia *", list(spice_options.keys()))
-                brand    = st.text_input("Brand / Provenienza", placeholder="es. Terre Esotiche")
-                stock    = st.slider("Scorta %", 0, 100, 100)
+                sel_name = st.selectbox("Spezia *", list(spice_options.keys()), key="disp_add_spice")
+                brand    = st.text_input("Brand / Provenienza", placeholder="es. Terre Esotiche", key="disp_add_brand")
+                stock    = st.slider("Scorta %", 0, 100, 100, key="disp_add_stock")
             with col2:
-                purchase = st.date_input("Data acquisto", value=date.today())
-                expiry   = st.date_input("Scadenza", value=date.today().replace(year=date.today().year+1))
-                notes    = st.text_area("Note", placeholder="Appunti…", height=80)
+                purchase = st.date_input("Data acquisto", value=date.today(), key="disp_add_purchase")
+                expiry   = st.date_input("Scadenza", value=date.today().replace(year=date.today().year+1), key="disp_add_expiry")
+                notes    = st.text_area("Note", placeholder="Appunti…", height=80, key="disp_add_notes")
             submit = st.form_submit_button("✓ Aggiungi", use_container_width=True)
             if submit:
                 spice_id = spice_options[sel_name]

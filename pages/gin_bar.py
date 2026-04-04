@@ -7,10 +7,10 @@ def show():
 
     col1, col2 = st.columns([3, 2])
     with col1:
-        search = st.text_input("🔍 Cerca gin", placeholder="Hendrick's, Sicilia, Bergamo, yuzu…", label_visibility="collapsed")
+        search = st.text_input("🔍 Cerca gin", placeholder="Hendrick's, Sicilia, Bergamo, yuzu…", label_visibility="collapsed", key="gin_search")
     with col2:
         origins = ["Tutte le origini"] + sorted(set(g.get("origin","").split(",")[-1].strip() for g in GIN_LIST if g.get("origin","")))
-        origin_filter = st.selectbox("Origine", origins, label_visibility="collapsed")
+        origin_filter = st.selectbox("Origine", origins, label_visibility="collapsed", key="gin_origin")
 
     filtered = GIN_LIST
     if search:
