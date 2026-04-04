@@ -2781,3 +2781,9 @@ FLAVOR_TAG_COLORS = {
     "Umami": "#9370DB",
     "Fruttato": "#FF6B6B",
 }
+
+# ── Strutture derivate ──────────────────────────────────────────
+SPICE_DICT = {s["id"]: s for s in SPICES_CATALOG}
+ALL_CATEGORIES = sorted(set(s["category"] for s in SPICES_CATALOG))
+ALL_FLAVOR_TAGS = sorted(set(t for s in SPICES_CATALOG for t in s.get("tags", [])))
+ALL_INTENSITIES = [1, 2, 3, 4, 5]

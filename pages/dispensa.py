@@ -59,6 +59,7 @@ def show():
 
             with cols[i % 3]:
                 with st.container():
+                    bar_html = stock_bar(lvl)
                     st.markdown(f"""
                     <div style="background:#1A1A1A;border:1px solid {color}44;border-radius:12px;
                                 padding:1.1rem;margin-bottom:.75rem;">
@@ -76,7 +77,7 @@ def show():
                         <span style="background:{ec}22;color:{ec};border:1px solid {ec}55;
                                      border-radius:99px;padding:2px 8px;font-size:.7rem;">{elbl}</span>
                       </div>
-                      {stock_bar(lvl)}
+                      {bar_html}
                       <div style="font-size:.7rem;color:#666;margin-top:.4rem;">
                         Scade: {exp or '—'}
                       </div>
