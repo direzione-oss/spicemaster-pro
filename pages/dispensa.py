@@ -59,30 +59,21 @@ def show():
 
             with cols[i % 3]:
                 with st.container():
-                    bar_html = stock_bar(lvl)
-                    st.markdown(f"""
-                    <div style="background:#1A1A1A;border:1px solid {color}44;border-radius:12px;
-                                padding:1.1rem;margin-bottom:.75rem;">
-                      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;">
-                        <div style="width:44px;height:44px;background:{color}22;border:1px solid {color}55;
-                                    border-radius:10px;display:flex;align-items:center;
-                                    justify-content:center;font-size:1.3rem;flex-shrink:0;">{emoji}</div>
-                        <div style="flex:1;min-width:0;">
-                          <div style="font-weight:700;color:#E8DCC8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{r['spice_name']}</div>
-                          <div style="font-size:.72rem;color:#888;">{brand}</div>
-                        </div>
-                      </div>
-                      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;">
-                        {cat_lbl}
-                        <span style="background:{ec}22;color:{ec};border:1px solid {ec}55;
-                                     border-radius:99px;padding:2px 8px;font-size:.7rem;">{elbl}</span>
-                      </div>
-                      {bar_html}
-                      <div style="font-size:.7rem;color:#666;margin-top:.4rem;">
-                        Scade: {exp or '—'}
-                      </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    bar_color = GREEN if lvl > 60 else (AMBER if lvl > 25 else RED)
+                    card = f'<div style="background:#1A1A1A;border:1px solid {color}44;border-radius:12px;padding:1.1rem;margin-bottom:.75rem;">'
+                    card += f'<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;">'
+                    card += f'<div style="width:44px;height:44px;background:{color}22;border:1px solid {color}55;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">{emoji}</div>'
+                    card += f'<div style="flex:1;min-width:0;">'
+                    card += f'<div style="font-weight:700;color:#E8DCC8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{r["spice_name"]}</div>'
+                    card += f'<div style="font-size:.72rem;color:#888;">{brand}</div>'
+                    card += '</div></div>'
+                    card += f'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;">{cat_lbl}'
+                    card += f'<span style="background:{ec}22;color:{ec};border:1px solid {ec}55;border-radius:99px;padding:2px 8px;font-size:.7rem;">{elbl}</span></div>'
+                    card += f'<div style="background:#222;border-radius:99px;height:8px;overflow:hidden;margin:.3rem 0;"><div style="width:{lvl}%;height:100%;background:{bar_color};border-radius:99px;"></div></div>'
+                    card += f'<span style="font-size:.72rem;color:{bar_color};font-weight:600;">{lvl}%</span>'
+                    card += f'<div style="font-size:.7rem;color:#666;margin-top:.4rem;">Scade: {exp or "—"}</div>'
+                    card += '</div>'
+                    st.markdown(card, unsafe_allow_html=True)
 
                     c1, c2 = st.columns(2)
                     with c1:
