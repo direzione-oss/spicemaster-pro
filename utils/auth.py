@@ -1,4 +1,6 @@
 import streamlit as st
+import bcrypt
+from html import escape
 from utils.db import get_supabase
 from utils.ui import GOLD
 from datetime import datetime
@@ -6,8 +8,22 @@ from datetime import datetime
 ADMIN_EMAIL = "direzione@serrastudio.it"
 
 
+# ── Password hashing ────────────────────────────────────────
+def _hash_pw(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def _verify_pw(password: str, hashed: str) -> bool:
+    try:
+        return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        # Fallback: confronto diretto per password non ancora migrate
+        return password == hashed
+
+
+# ── Notifica admin ───────────────────────────────────────────
 def _notify_admin_registration(nome: str, email: str):
-    """Notifica l'admin di una nuova registrazione via email e DB."""
+    """Notifica l'admin di una nuova registrazione via email."""
     try:
         import smtplib
         from email.mime.text import MIMEText
@@ -30,11 +46,12 @@ def _notify_admin_registration(nome: str, email: str):
                 server.login(smtp_user, smtp_pass)
                 server.sendmail(smtp_user, ADMIN_EMAIL, msg.as_string())
     except Exception:
-        pass  # email non configurata, fallback silenzioso
+        pass
 
 
+# ── Pagina di login ──────────────────────────────────────────
 def login_page():
-    """Pagina di login con registrazione e reset password."""
+    """Pagina di login con registrazione."""
     st.markdown("""
     <style>
     .auth-box {
@@ -55,7 +72,6 @@ def login_page():
         st.markdown('<div class="auth-title">🌶️ SpiceMaster Pro</div>', unsafe_allow_html=True)
         st.markdown('<div class="auth-sub">Il tuo laboratorio botanico in cloud</div>', unsafe_allow_html=True)
 
-        # Toggle tra login / registrazione / reset
         if "auth_mode" not in st.session_state:
             st.session_state["auth_mode"] = "login"
 
@@ -74,15 +90,21 @@ def login_page():
                 else:
                     sb = get_supabase()
                     res = sb.table("smp_utenti")\
-                            .select("id, nome, email, ruolo")\
+                            .select("id, nome, email, ruolo, password_hash")\
                             .eq("email", email.strip().lower())\
-                            .eq("password_hash", password)\
                             .execute()
                     if res.data:
                         user = res.data[0]
-                        if user.get("ruolo") == "disabilitato":
+                        if not _verify_pw(password, user["password_hash"]):
+                            st.error("❌ Credenziali non corrette.")
+                        elif user.get("ruolo") == "disabilitato":
                             st.error("⛔ Account disabilitato. Contatta l'amministratore.")
                         else:
+                            # Migra password in chiaro a bcrypt se necessario
+                            if not user["password_hash"].startswith("$2"):
+                                sb.table("smp_utenti").update({
+                                    "password_hash": _hash_pw(password)
+                                }).eq("id", user["id"]).execute()
                             st.session_state["user_id"]    = user["id"]
                             st.session_state["user_nome"]  = user["nome"] or user["email"].split("@")[0]
                             st.session_state["user_email"] = user["email"]
@@ -127,12 +149,11 @@ def login_page():
                         st.error("❌ Email già registrata. Prova ad accedere.")
                     else:
                         sb.table("smp_utenti").insert({
-                            "nome": reg_nome.strip(),
+                            "nome": escape(reg_nome.strip()),
                             "email": reg_email.strip().lower(),
-                            "password_hash": reg_pass,
+                            "password_hash": _hash_pw(reg_pass),
                             "ruolo": "utente",
                         }).execute()
-                        # Notifica admin
                         _notify_admin_registration(reg_nome.strip(), reg_email.strip().lower())
                         st.success("✅ Account creato! Ora puoi accedere.")
                         st.session_state["auth_mode"] = "login"
@@ -144,33 +165,9 @@ def login_page():
 
         # ── RESET PASSWORD ───────────────────────────────────
         elif mode == "reset":
-            st.markdown(f"<h3 style='color:{GOLD};text-align:center;'>🔑 Reset Password</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='color:#888;text-align:center;font-size:.85rem;'>Inserisci la tua email e la nuova password.</p>", unsafe_allow_html=True)
-
-            with st.form("reset_form"):
-                rst_email = st.text_input("📧 Email registrata", key="rst_email")
-                rst_pass  = st.text_input("🔑 Nuova Password", type="password", key="rst_pass")
-                rst_pass2 = st.text_input("🔑 Conferma Nuova Password", type="password", key="rst_pass2")
-                submit    = st.form_submit_button("🔄 Reimposta Password", use_container_width=True)
-
-            if submit:
-                if not rst_email or not rst_pass:
-                    st.error("Compila tutti i campi.")
-                elif rst_pass != rst_pass2:
-                    st.error("Le password non corrispondono.")
-                elif len(rst_pass) < 6:
-                    st.error("La password deve avere almeno 6 caratteri.")
-                else:
-                    sb = get_supabase()
-                    user = sb.table("smp_utenti").select("id").eq("email", rst_email.strip().lower()).execute()
-                    if not user.data:
-                        st.error("❌ Email non trovata.")
-                    else:
-                        sb.table("smp_utenti").update({"password_hash": rst_pass})\
-                          .eq("email", rst_email.strip().lower()).execute()
-                        st.success("✅ Password aggiornata! Ora puoi accedere.")
-                        st.session_state["auth_mode"] = "login"
-                        st.rerun()
+            st.markdown(f"<h3 style='color:{GOLD};text-align:center;'>🔑 Password dimenticata</h3>", unsafe_allow_html=True)
+            st.info("📧 Per reimpostare la password, contatta l'amministratore all'indirizzo **direzione@serrastudio.it** indicando il tuo nome e l'email di registrazione.")
+            st.markdown("<div style='height:.5rem;'></div>", unsafe_allow_html=True)
 
             if st.button("← Torna al login", key="back_from_reset", use_container_width=True):
                 st.session_state["auth_mode"] = "login"
@@ -179,12 +176,13 @@ def login_page():
     return False
 
 
+# ── Utility ──────────────────────────────────────────────────
 def check_auth() -> bool:
     return st.session_state.get("logged_in", False)
 
 
 def is_admin() -> bool:
-    return st.session_state.get("user_email", "") == ADMIN_EMAIL
+    return st.session_state.get("user_ruolo", "") == "admin"
 
 
 def logout():

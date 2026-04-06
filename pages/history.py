@@ -1,4 +1,5 @@
 import streamlit as st
+from html import escape
 from utils.db import get_supabase
 from utils.ui import page_header, GOLD, AMBER
 from datetime import date
@@ -23,7 +24,7 @@ def show():
                         padding:1rem 1.25rem;margin-bottom:.6rem;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div>
-                  <b style="color:#E8DCC8;font-size:1rem;">{r.get('dish_name','—')}</b>
+                  <b style="color:#E8DCC8;font-size:1rem;">{escape(r.get('dish_name','—'))}</b>
                   <span style="color:#666;font-size:.75rem;margin-left:.75rem;">{r.get('date','')}</span>
                 </div>
                 <span style="font-size:1.1rem;">{STARS[min(rating,5)]}</span>

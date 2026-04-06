@@ -1,4 +1,5 @@
 import streamlit as st
+from html import escape
 from utils.db import get_supabase
 from utils.ui import page_header, metric_card, GOLD, GREEN, AMBER, RED
 from datetime import date
@@ -14,7 +15,7 @@ def show():
                 border:1px solid {GOLD}33;border-radius:16px;padding:2rem 2.5rem;margin-bottom:1.5rem;">
       <div style="font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.15em;">SpiceMaster Pro</div>
       <h1 style="font-size:2rem;color:{GOLD};margin:.25rem 0;font-weight:800;">
-        👋 Benvenuto, {nome}
+        👋 Benvenuto, {escape(nome)}
       </h1>
       <p style="color:#aaa;margin:0;font-size:.9rem;">Il tuo laboratorio botanico personale</p>
     </div>
@@ -85,8 +86,8 @@ def show():
                         padding:.8rem 1.1rem;margin-bottom:.4rem;display:flex;align-items:center;gap:1rem;">
               <div style="font-size:1.3rem;">{'❌' if is_expired else '⚠️'}</div>
               <div style="flex:1;">
-                <b style="color:#E8DCC8;">{r['spice_name']}</b>
-                <span style="color:#888;font-size:.78rem;margin-left:.5rem;">{r.get('brand','')}</span>
+                <b style="color:#E8DCC8;">{escape(r['spice_name'])}</b>
+                <span style="color:#888;font-size:.78rem;margin-left:.5rem;">{escape(r.get('brand',''))}</span>
               </div>
               <div style="text-align:right;">
                 <span style="color:{colore};font-weight:700;">{lvl}%</span>

@@ -1,4 +1,5 @@
 import streamlit as st
+from html import escape
 from utils.db import get_supabase
 from utils.ui import page_header, stock_bar, spice_badge, GOLD, RED, AMBER, GREEN
 from data.catalog import SPICE_DICT, SPICES_CATALOG, ALL_CATEGORIES
@@ -49,7 +50,7 @@ def show():
         for i, r in enumerate(filtered):
             sp       = SPICE_DICT.get(r["spice_id"], {})
             lvl      = r.get("stock_level", 100)
-            brand    = r.get("brand", "")
+            brand    = escape(r.get("brand", ""))
             exp      = r.get("expiration_date", "")
             est, elbl= _expiry_status(exp)
             color    = sp.get("color","#C9900C")
@@ -64,7 +65,7 @@ def show():
                     card += f'<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;">'
                     card += f'<div style="width:44px;height:44px;background:{color}22;border:1px solid {color}55;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">{emoji}</div>'
                     card += f'<div style="flex:1;min-width:0;">'
-                    card += f'<div style="font-weight:700;color:#E8DCC8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{r["spice_name"]}</div>'
+                    card += f'<div style="font-weight:700;color:#E8DCC8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{escape(r["spice_name"])}</div>'
                     card += f'<div style="font-size:.72rem;color:#888;">{brand}</div>'
                     card += '</div></div>'
                     card += f'<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;">{cat_lbl}'

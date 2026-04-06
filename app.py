@@ -3,6 +3,7 @@ SpiceMaster Pro — App Principale
 Login + navigazione a pagina singola (no tabs, no sidebar)
 """
 import streamlit as st
+from html import escape
 from utils.auth import check_auth, login_page, logout, is_admin
 from utils.ui import GOLD
 
